@@ -1,0 +1,191 @@
+\documentclass[12pt,letterpaper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1 in]{geometry}
+
+\renewcommand{\baselinestretch}{1.5}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Cover page
+
+\begin{center}
+
+{\Large \textbf{A Report} \\}
+\medskip
+{\large \textbf{ON} \\} 
+\medskip
+{\large \textbf{VEHICLE DETECTION ON JETSON NANO}}
+
+\vskip 1.5in
+
+{\large BY}
+\bigskip
+
+\addtolength{\tabcolsep}{20pt}
+\begin{tabular}{cc}
+    {\large Rahul Ganesh Prabhu} & {\large 2018A7PS0193P} \\
+    {\large Saurabh Wandhekar} & {\large 2018A7PS0157G}
+\end{tabular}
+\addtolength{\tabcolsep}{-20pt}
+
+\vskip 1.5in
+
+{\large AT \\}
+\medskip
+{\large CENTRE FOR DEVELOPMENT OF ADVANCED COMPUTING, PUNE} \\ 
+\vskip 0.4in
+{\large A Practice School - I Station of} \\
+\vskip 0.4in
+{\large \textbf{BIRLA INSTITUTE OF TECHNOLOGY \& SCIENCE, PILANI}}
+\vskip 0.4in
+{\large \textbf{(June,2020)}}
+
+\end{center}
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Title Page
+\begin{center}
+    { \large \textbf{
+    A REPORT \\
+    ON \\
+    VEHICLE DETECTION ON JETSON NANO
+}
+    }
+
+\vskip 1in
+
+{\large BY} \\
+\bigskip
+\begin{tabular}{c \ c \ c}
+    {\large  Rahul Ganesh Prabhu} & {\large 2018A7PS0193P} & {\large B.E. (Hons.) Computer Science} \\
+    {\large  Saurabh Wandhekar} & {\large 2018A7PS0157G} & {\large B.E. (Hons.) Computer Science} \\
+\end{tabular}
+
+\vskip 1in
+
+Prepared in partial fulfillment of the \\
+Practice School-I Course No.s \\
+BITS C221/BITS C231/BITS C241 \\
+
+\bigskip
+{\large AT \\
+    CENTRE FOR DEVELOPMENT OF ADVANCED COMPUTING, PUNE \\
+    A Practice School-I Station of
+}
+
+\vskip 1in
+
+
+{\large \textbf{BIRLA INSTITUTE OF TECHNOLOGY \& SCIENCE, PILANI}}
+
+{\large \textbf{(June, 2020)}}
+
+
+\end{center}
+
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Acknowledgements
+
+\begin{center}
+    { \Large \textbf{Acknowledgements}}
+\end{center}
+
+We would like to take this opportunity to express our heartfelt gratitude to everyone who has supported us in our work during the course of this project. Firstly, we would like to thank BITS Pilani and CDAC, Pune for giving us a platform in the form of PS-1 to work on this project. 
+
+Further, we would like to thank Rahul Dangi, our mentor for his guidance and for providing us, this opportunity to work under him. He provided us with tremendously valuable resources in order to help us gain deep insight into this project. He has always been keen on helping us by solving our doubts through continuous interactions. We are grateful to him for the same. 
+
+We would also like to thank our faculty mentor, Dr. Tathagata Ray for his continuous motivation and support. He has been guiding us constantly so that we maintain discipline in our work and make the best out of this opportunity. We are thankful to him for the same.
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Abstract
+
+\begin{center}
+    {\large 
+    \textbf{BIRLA INSTITUTE OF TECHNOLOGY \& SCIENCE, PILANI} \\
+     \textbf{(RAJASTHAN)} \\
+     \textbf{Practice School Division}
+}
+\end{center}
+
+\noindent \textbf{Station:} Centre for Development of Advanced Computing, Pune
+
+\noindent \textbf{Duration:} 6 weeks \hfill \textbf{Date of Start:} 18th May, 2020
+
+ \noindent \textbf{Date Of Submission:} 24th June, 2020
+
+ \noindent \textbf{Title of Project:} Vehicle Detection on Jetson Nano
+
+\medskip
+
+\begin{tabular}{c c c}
+\textbf{Student Name} & \textbf{ID No.} & \textbf{Discipline} \\
+Rahul Ganesh Prabhu & 2018A7PS0193P & B.E. (Hons.) Computer Science \\
+Saurabh Wandhekar & 2018A7PS0157G & B.E. (Hons.) Computer Science
+\end{tabular}
+
+\medskip
+
+ \noindent \textbf{Name of Mentor:} Rahul Dangi
+
+ \noindent \textbf{Name of PS Faculty:} Dr. Tathagata Ray
+
+ \noindent \textbf{Key Words:} Real-time object detection, resource constrained hardware
+
+ \noindent \textbf{Project Areas:} Object detection, machine learning, neural networks
+
+ \noindent \textbf{Abstract:}
+
+\noindent The goal of this project is to develop an end-to-end machine learning pipeline for the purpose of real-time vehicle detection on resource-constrained hardware like the NVIDIA Jetson Nano. It also involves testing multiple different object detection algorithms to find the best approach for the specified use case. This pipeline will be part of a license plate recognition system for roads and highways.
+
+
+% TODO: Add more spacing, or maybe add the signatures
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Table of Contents
+
+TODO: ADD TOC
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Content starts
+
+\section{Introduction}
+
+    Object detection is a computer vision task that involves detecting instances of objects of a certain class (e.g. humans, cars, phones) from images or videos. These classes are identified by means of the special visual features they possess, which help us distinguish them from other objects. For example, pedestrians possess facial features like a nose, a mouth and eyes that distinguish them from a bird, which could be distinguished with its beak. Object detection is usually done by employing deep convolutional neural networks for feature extraction, stacked below fully connected layers for classification.
+
+    The Jetson Nano is a small, powerful computer used for embedded applications. It’s spec sheet can be found in Appendix A. It comes equipped with a GPU which is ideal for neural-network-based tasks due to their high throughput, aiding in large matrix operations. However, it still poses a tight resource constraint. Our goal is to process real-time video footage at about 20 frames per second (FPS), but this will not be possible using more complicated networks that use over 100 layers, like YOLOv4. Hence, it is necessary to use lighter object detection models that can run comfortably on embedded hardware. 
+
+For this project, we decided to test and compare two different object detection methods - Tiny YOLOv3 (tested by Rahul Ganesh Prabhu) and SSD Mobilenetv2 (tested by Saurabh Wandhekar). While Tiny YOLOv3 is much lighter, SSD Mobilenet has empirically been found to have a better speed vs accuracy trade-off.
+
+
+\section{YOLO - You Only Look Once}
+
+YOLO, which stands for You Only Look Once is a fast and accurate real-time object detection system. The first of its kind, it works much faster than older region proposal based techniques like R-CNN. While the region proposal based approaches involve proposing hundreds of “regions” which are processed individually by the convolutional neural network, YOLO processes an image in a single pass. This results in much faster evaluation, making it far more suitable for real-time purposes.
+
+\subsection{How does it work?}
+
+YOLO first divides an input image into an SxS grid. Each grid cell predicts a fixed number of bounding boxes, such that their center lies within the grid cell. However, each grid cell only detects a single object. Every predicted boundary box has its own box confidence score, which defines how confident the neural network is that the bounding box is correct and that it contains an object. Every grid cell also produces different class probabilities, one for every class. These define how probable it is that a given grid cell contains an object of the given class. In practice, only those boundary boxes are chosen whose box confidence scores cross a certain threshold value, which is different depending on the use case.
+
+    This approach faces two problems. For one, if two objects’ centres are within the same grid cell, they cannot be separately detected, since each grid cell produces only one bounding box. The other problem is that it could produce duplicate detection of the same object. In order to mitigate this problem, an algorithm called non-maximal suppression (NMS) is used. It removes duplicate bounding boxes by removing the ones which have a large area of intersection with other bounding boxes that have a higher box confidence score.
+
+
+
+\end{document}
+
