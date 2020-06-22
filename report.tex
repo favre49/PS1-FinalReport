@@ -1,6 +1,7 @@
 \documentclass[12pt,letterpaper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1 in]{geometry}
+\usepackage{graphicx}
 
 \renewcommand{\baselinestretch}{1.5}
 
@@ -61,7 +62,7 @@
 
 {\large BY} \\
 \bigskip
-\begin{tabular}{c \ c \ c}
+\begin{tabular}{c c c}
     {\large  Rahul Ganesh Prabhu} & {\large 2018A7PS0193P} & {\large B.E. (Hons.) Computer Science} \\
     {\large  Saurabh Wandhekar} & {\large 2018A7PS0157G} & {\large B.E. (Hons.) Computer Science} \\
 \end{tabular}
@@ -185,6 +186,95 @@ YOLO first divides an input image into an SxS grid. Each grid cell predicts a fi
 
     This approach faces two problems. For one, if two objects’ centres are within the same grid cell, they cannot be separately detected, since each grid cell produces only one bounding box. The other problem is that it could produce duplicate detection of the same object. In order to mitigate this problem, an algorithm called non-maximal suppression (NMS) is used. It removes duplicate bounding boxes by removing the ones which have a large area of intersection with other bounding boxes that have a higher box confidence score.
 
+\subsection{How are bounding boxes predicted?}
+
+The YOLO network outputs a set of bounding boxes for each grid cell. If YOLO had to predict the dimensions of the bounding boxes as well, training would be very unstable. To make this process easier, we provide “anchor boxes” or “priors”. These anchor boxes are tuples of width and height, that are used to predict the boundary boxes for the different objects in a picture. YOLO does this by predicting offsets to these boxes. These offsets are constrained by a sigmoid function, which keeps the offsets in a [0,1] range, preventing large changes and keeping training stable.
+
+The anchor boxes have to be hand-picked for the given task, as the dimensions of the desired box depends entirely on the dimensions of the desired detections. The desired anchor boxes are generated using k-means clustering. However, using k-means clustering with the Euclidean distance metric empirically leads to favouring larger boxes over smaller ones. To alleviate this, we use a different distance operator that is ubiquitous in object detection - Intersection Over Union (IOU). IOU of two boxes is defined as the ratio of area of their intersection to the area of their union.
+
+\[ IOU = \frac{Area\;of\;Intersection}{Area\;of\;Union} \]
+
+The more two bounding boxes overlap, or in other words, the more alike they are, the higher is the IOU. The results of the clustering can be seen below:
+
+    \begin{figure}[h!]
+        \centering
+        \includegraphics[width=0.8\textwidth,keepaspectratio]{assets/plot.png}
+        \caption{Bounding box clustering results}
+    \end{figure}
+
+All points of a single colour are in one cluster, while the black dots signify their centres, which are chosen as anchor boxes.
+
+\subsection{The loss function}
+
+The YOLO loss function is a sum of three parts:
+
+\begin{enumerate}
+    \item Classification Loss: If an object is detected, the classification loss at each cell is the squared error of the class conditional probabilities for each class. The formula is defined below:
+        \[ \sum_{i=0}^{S^2} 1_{i}^{obj} \sum_{c \in classes} (p_{i}(c)-\widehat{p_{i}}(c))^2 \] 
+    where $1_{i}^{obj} = 1$ if an object appears in cell $i$, otherwise 0
+
+    $\widehat{p_{i}}(c)$ denotes the conditional class probability for class $c$ in cell $i$
+
+\item Localization Loss: This measures the errors in the predicted boundary box locations and sizes. The formula is as defined below: TODO EQUATION
+
+\item Confidence Loss: If an object is detected in the box, the confidence loss is as defined below: TODO EQUATION
+    
+\end{enumerate}
+
+The final loss is the sum of these three parts.
+
+TODO: insert equation
+
+\subsection{Network Architecture}
+
+YOLOv3 uses a 53-layer Darknet-53 feature extractor, upon which another 53 layers are stacked for the purpose of detection, coming to a total of 106 layers. This is far too much for our embedded system use case. Instead, we use a smaller, lighter model, Tiny YOLOv3.  It uses only 23 layers, making it perfect for our case. The network architecture is as tabulated below:
+
+\includegraphics[width=\textwidth,keepaspectratio]{assets/darknettable.png}
+
+\section{SSD - Single Shot Multibox Detector}
+
+SSD is a fast and accurate real-time object detection system. SSD predicts bounding boxes and classes directly from feature maps in one single pass. Feature maps are a representation of the dominant features of the image at different scales. For example, feature maps can be 8x8 or 4x4 grids.
+
+\subsection{How does it work?}
+
+SSD only needs an input image and the corresponding ground truth boxes for each object in the image during training. The model takes an image as input which passes through multiple convolutional layers with different sizes of filters (10x10, 5x5 and 3x3) whose outputs are feature maps. These feature maps from convolutional layers at different positions of the network are used to predict the bounding boxes. We associate a set of default bounding boxes called anchors or priors with each cell of the feature map. These bounding boxes have different sizes and aspect ratios. For each default box, we predict both the shape offsets (width and height) and the confidences for all object categories. At training time, we match these default boxes to the ground truth boxes. For example, in the feature maps below, we have matched two default boxes with the cat and one with the dog, which are treated as positives and the rest as negatives. The chosen boundary boxes are those whose box confidence scores cross a certain threshold, which is different depending on the use case. The non-maximal suppression method is also used at the end of the SSD model to keep the most relevant bounding boxes.
+
+\includegraphics[width = \textwidth,keepaspectratio]{assets/SSDpic.png}
+
+SSD makes far more predictions than the number of objects present. So, there are many more negative matches than positive matches. This creates a class imbalance that hurts training. We are training the model to learn background space rather than detecting objects. The reason why you need to keep negative samples is because the network also needs to learn and be explicitly told what constitutes an incorrect detection. So, instead of using all the negatives, we sort those negatives by their calculated confidence loss. SSD picks the negatives with the top loss and makes sure the ratio between the picked negatives and positives is at most 3:1. This leads to faster and more stable training. This is known as hard negative mining.
+
+\subsection{The loss function}
+
+The model loss is a weighted sum between localization loss and confidence loss. Localization loss measures how far away the network’s predicted bounding boxes are from the ground-truth bounding boxes.
+
+TODO: ADD EQUATION
+
+Confidence loss measures how confident the network is of the objectness of the computed bounding box i.e. the loss in making a class prediction. For every positive match prediction, we penalize the loss according to the confidence score of the corresponding class. For negative match predictions, we penalize the loss according to the confidence score of the class “0”: class “0” classifies no object is detected.
+
+TODO: ADD EQUATION
+
+The final loss function is computed as:
+
+TODO: ADD EQUATION
+
+\subsection{Network Architecture}
+
+\begin{center}
+\includegraphics[scale = 0.5]{assets/ssdstruct1.png}
+\end{center}
+
+The first layer of the block is a 1×1 convolution. Its purpose is to expand the number of channels in the data before it goes into the depthwise convolution. Hence, this expansion layer always has more output channels than input channels. The second layer of the block is a depthwise convolution that filters the inputs. This is followed by a 1x1 pointwise convolutional layer which makes the number of channels smaller. This is why this layer is now known as the projection layer — it projects data with a high number of dimensions (channels) into a tensor with a much lower number of dimensions. For example, the depthwise layer may work on a tensor with 144 channels, which the projection layer will then shrink down to only 24 channels.
+
+\includegraphics[width=\textwidth,keepaspectratio]{assets/ssdstruct2.png}
+
+Then there is a residual connection that works just like in ResNet and exists to help with the flow of gradients through the network. The residual connection is only used when the number of channels going into the block is the same as the number of channels coming out of it, which is not always the case as every few blocks the output channels are increased. As usual, each layer has batch normalization and the activation function is ReLU6. This is like the well-known ReLU but it prevents activations from becoming too big:
+
+\[  y = min(max(0,x),6)  \]
+
+However, the output of the projection layer does not have an activation function applied to it. Since this layer produces low-dimensional data, using a non-linearity after this layer actually destroys useful information.
+The full MobileNet V2 architecture, then, consists of 17 of these building blocks in a row. This is followed by a regular 1×1 convolution, a global average pooling layer, and a classification layer. (Small detail: the very first block is slightly different, it uses a regular 3×3 convolution with 32 channels instead of the expansion layer.)
+
+\section{Results and Observations}
 
 
 \end{document}
