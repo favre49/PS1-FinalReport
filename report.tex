@@ -11,6 +11,8 @@
 
 % Cover page
 
+\thispagestyle{empty}
+
 \begin{center}
 
 {\Large \textbf{A Report} \\}
@@ -50,6 +52,9 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Title Page
+
+\thispagestyle{empty}
+
 \begin{center}
     { \large \textbf{
     A REPORT \\
@@ -96,6 +101,8 @@ BITS C221/BITS C231/BITS C241 \\
 
 % Acknowledgements
 
+\thispagestyle{empty}
+
 \begin{center}
     { \Large \textbf{Acknowledgements}}
 \end{center}
@@ -111,6 +118,8 @@ We would also like to thank our faculty mentor, Dr. Tathagata Ray for his contin
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Abstract
+
+\thispagestyle{empty}
 
 \begin{center}
     {\large 
@@ -159,13 +168,17 @@ Saurabh Wandhekar & 2018A7PS0157G & B.E. (Hons.) Computer Science
 
 % Table of Contents
 
-TODO: ADD TOC
+\thispagestyle{empty}
+
+\tableofcontents
 
 \pagebreak
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Content starts
+
+\setcounter{page}{1}
 
 \section{Introduction}
 
@@ -274,8 +287,51 @@ Then there is a residual connection that works just like in ResNet and exists to
 However, the output of the projection layer does not have an activation function applied to it. Since this layer produces low-dimensional data, using a non-linearity after this layer actually destroys useful information.
 The full MobileNet V2 architecture, then, consists of 17 of these building blocks in a row. This is followed by a regular 1×1 convolution, a global average pooling layer, and a classification layer. (Small detail: the very first block is slightly different, it uses a regular 3×3 convolution with 32 channels instead of the expansion layer.)
 
-\section{Results and Observations}
+\section{Model deployment}
 
+TODO: change name?
+
+\subsection{Model training}
+
+Both models were trained on the KITTI dataset and an internal dataset given by CDAC Pune. The dataset was cleaned so as to remove all vehicles not annotated with the tag `Car'. However, it is possible to extend the same approach to multiple classes. Tiny YOLOv3 was trained on the official Darknet implementation, while SSD-Mobilenetv2 was trained with the Tensorflow Object Detection API.
+
+The hyperparameters used for training can be found below:
+
+TODO: Insert table
+
+\subsection{Model Optimization}
+
+While these trained models could immediately be used for real time inference. they would not give optimal performance, especially on resource constrained hardware like the Jetson Nano. This is where model optimization comes in. Model optimization can result in a decrease in size, latency, and memory usage. However, optimization can also result in changes to model accuracy, hence presenting a trade-off that needs to be considered in this part of the process.
+
+\subsubsection{Model Quantization}
+
+Model quantization reduces the precision of numbers used to represent a model's parameters, which is usually stored as a 32-bit floating point number (called FP32). This can reduce the size and speed of computation significantly, but could also affect accuracy. Models are usually quantized to either a 16-bit floating point number (FP16) or an 8-bit integer (INT8). The move from FP32 to FP16 can usually be done with insignificant loss of accuracy, but the conversion to INT8 is usually more complicated than that.
+
+INT8 quantization compresses a 32 bit floating point number down to 8 bits. If we were to simply round the floating point number to an integer, this loss in precision would result in a massive degradation in accuracy, rendering it almost useless. Instead, the 32-bit values are mapped to 8 bit integer values. The candidates for the mapping are the inputs to each layer (activations), and the mapping is done by means of a linear mapping:
+
+\[ T = sf \cdot t \]
+
+where $T$ is the FP32 tensor,
+
+$sf$ is a scaling factor,
+
+$t$ is the INT8 tensor,
+
+Sometimes, a bias term is also added, but it is normally not necessary.
+
+To decide the scaling factor, we choose a threshold value $T$. All values outside the range $[-T,T]$ are given the extreme values of -127 or 127, and the values in between are linearly scaled to values between -127 and 127. Now, how do we decide the threshold $T$? Essentialy, we are looking for a value of T that would minimize the difference between two distributions - the distribution of the FP32 tensors and the distribution of the INT8 tensors. The difference between them can be quantified using the Kullback-Leibler divergence. So, to choose the threshold $T$, we choose the value that minimizes the KL-divergence. This can be done by a simple iterative search for the right threshold value. 
+
+Another important part of choosing the threshold value is the calibration dataset. The calibration dataset is ideally representative of the data that we expect to process, and it usually a subset of the validation dataset. It is used to generate histograms of activations from FP32 inference, from which multiple 8 bit representations are produced. The one with the least KL-divergence is chosen. This process is known as calibration.
+
+\subsubsection{TensorRT}
+
+TensorRT is an SDK developed by NVIDIA for high performance inference. Besides providing support for quantization, TensorRT can also be used to optimize Tensorflow models. It does this by providing platform dependent optimizations to certain Tensorflow subgraphs and operations with CUDA. By optimizing with TensorRT, we can obtain a speedup of over 800\%.
+
+\subsubsection{Multithreading}
+
+We can also create a minor speedup by the use of multithreading.
+
+TODO: Talk to Saurabh about multithreading in Tensorflow. Darknet does it internally anyway
 
 \end{document}
 
