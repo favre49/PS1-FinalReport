@@ -2,6 +2,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[margin=1 in]{geometry}
 \usepackage{graphicx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{caption}
 
 \renewcommand{\baselinestretch}{1.5}
 
@@ -228,15 +231,40 @@ The YOLO loss function is a sum of three parts:
 
     $\widehat{p_{i}}(c)$ denotes the conditional class probability for class $c$ in cell $i$
 
-\item Localization Loss: This measures the errors in the predicted boundary box locations and sizes. The formula is as defined below: TODO EQUATION
-
-\item Confidence Loss: If an object is detected in the box, the confidence loss is as defined below: TODO EQUATION
+\item Localization Loss: This measures the errors in the predicted boundary box locations and sizes. The formula is as defined below:
     
+    \[ \lambda_{coord}\sum_{i=0}^{S^2} \sum_{j=0}^{B} 1_{ij}^{obj} [(x_{i} - \widehat{x}_{i})^2 + (y_{i} - \widehat{y}_{i})^2]\; + \; \lambda_{coord}\sum_{i=0}^{S^2} \sum_{j=0}^{B}1_{ij}^{obj}[(\sqrt{w_{i}} - \sqrt{\widehat{w}_{i}})^2 + (\sqrt{h_{i}} - \sqrt{\widehat{h}_{i}})^2 ]    \]
+
+where
+
+$1_{ij}^{obj} = 1$ if the $j^{th}$ boundary box in cell $i$ is responsible for detecting the object, otherwise 0.
+
+$\lambda_{coord}$ increases the weight of the localization loss in the total loss
+
+
+\item Confidence Loss: If an object is detected in the box, the confidence loss is as defined below:
+
+    \[ \sum_{i=0}^{S^2} \sum_{j=0}^{B} 1_{ij}^{obj} (C_{i} - \widehat{C}_{i})^2 \]
+
+    where
+
+    $\widehat{C}_{i}$ is the box confidence score of the box j in cell i
+
+    $1_{ij}^{obj} = 1$ if the $j^{th}$ boundary box in cell $i$ is responsible for detecting the object, otherwise 0.
+
+    If an object is not detected in the box, the confidence loss is defined as:
+
+    \[ \lambda_{noobj} \sum_{i=0}^{S^2} \sum_{j=0}^{B} 1_{ij}^{noobj} (C_{i} - \widehat{C}_{i})^2  \]
+
+    where
+
+    $1_{ij}^{noobj}$ is the complement of $1_{ij}^{obj}$
+
+    $\widehat{C}_{i}$ is the box confidence score of the box $j$ in cell $i$
+
+    $\lambda_{noobj}$ weighs down this element of the loss, since most bounding boxes do not contain any objects
+
 \end{enumerate}
-
-The final loss is the sum of these three parts.
-
-TODO: insert equation
 
 \subsection{Network Architecture}
 
@@ -252,7 +280,11 @@ SSD is a fast and accurate real-time object detection system. SSD predicts bound
 
 SSD only needs an input image and the corresponding ground truth boxes for each object in the image during training. The model takes an image as input which passes through multiple convolutional layers with different sizes of filters (10x10, 5x5 and 3x3) whose outputs are feature maps. These feature maps from convolutional layers at different positions of the network are used to predict the bounding boxes. We associate a set of default bounding boxes called anchors or priors with each cell of the feature map. These bounding boxes have different sizes and aspect ratios. For each default box, we predict both the shape offsets (width and height) and the confidences for all object categories. At training time, we match these default boxes to the ground truth boxes. For example, in the feature maps below, we have matched two default boxes with the cat and one with the dog, which are treated as positives and the rest as negatives. The chosen boundary boxes are those whose box confidence scores cross a certain threshold, which is different depending on the use case. The non-maximal suppression method is also used at the end of the SSD model to keep the most relevant bounding boxes.
 
+\begin{figure}[h!]
+    \centering
 \includegraphics[width = \textwidth,keepaspectratio]{assets/SSDpic.png}
+\caption{TODO: Ask Saurabh}
+\end{figure}
 
 SSD makes far more predictions than the number of objects present. So, there are many more negative matches than positive matches. This creates a class imbalance that hurts training. We are training the model to learn background space rather than detecting objects. The reason why you need to keep negative samples is because the network also needs to learn and be explicitly told what constitutes an incorrect detection. So, instead of using all the negatives, we sort those negatives by their calculated confidence loss. SSD picks the negatives with the top loss and makes sure the ratio between the picked negatives and positives is at most 3:1. This leads to faster and more stable training. This is known as hard negative mining.
 
@@ -260,25 +292,49 @@ SSD makes far more predictions than the number of objects present. So, there are
 
 The model loss is a weighted sum between localization loss and confidence loss. Localization loss measures how far away the network’s predicted bounding boxes are from the ground-truth bounding boxes.
 
-TODO: ADD EQUATION
+The localization loss between the predicted box $l$ and the ground truth box $g$ is defined as the smooth L1 loss with $cx,cy$ as the offset to the default bounding box $d$ of width $w$ and height $h$
 
-Confidence loss measures how confident the network is of the objectness of the computed bounding box i.e. the loss in making a class prediction. For every positive match prediction, we penalize the loss according to the confidence score of the corresponding class. For negative match predictions, we penalize the loss according to the confidence score of the class “0”: class “0” classifies no object is detected.
+\[  L_{loc}(x,l,g) = \sum^{N}_{i \in Pos} \sum_{m \in \{cx,cy,w,h\}}x_{ij}^{k} smooth_{L1}(l_{i}^{m} - \widehat{g}_{j}^{m})    \]
+\[\hat{g}_{j}^{cx}=(g_{j}^{cx}-d_{i}^{cx})/d_{i}^{w} \]
+\[\hat{g}_{j}^{cy}=(g_{j}^{cy}-d_{i}^{cy})/d_{i}^{h}\]
+\[ \hat{g}_{j}^{w} = \log{\frac{g_{j}^{w}}{d_{i}^{w}}} \]
+\[\hat{g}_{j}^{h} = \log{\frac{g_{j}^{h}}{d_{i}^{h}}} \]
+\[
+    x_{ij}^{p} = 
+    \begin{cases}
+    1, & \text{if} IoU > 0.5 \; \textnormal{between default box i and ground truth box j on class p} \\
+    0, & \text{otherwise}
+    \end{cases}
+    \]
+Confidence loss measures how confident the network is of the objectness of the computed bounding box i.e. the loss in making a class prediction. For every positive match prediction, we penalize the loss according to the confidence score of the corresponding class. For negative match predictions, we penalize the loss according to the confidence score of the class “0”: class “0” classifies no object is detected. It is calculated as the softmax loss over multiple classes confidences $c$.
 
-TODO: ADD EQUATION
+\[  L_{conf}(x,c) = -\sum_{i \in pos}^{N} x_{ij}^{p} \log{\hat{c}_{i}^{p}} - \sum_{i \in Neg}\log{\hat{c}_{i}^{0}}  \]
+
+where
+
+$N$ is the number of matched default boxes, and
+
+$\hat{c}_{i}^{p} = \frac{\exp{c_{i}^{p}}}{\sum \exp{c_{i}^{p}}}$
+
 
 The final loss function is computed as:
 
-TODO: ADD EQUATION
+\[ L(x,c,l,g) = \frac{1}{N}(L_{conf}(x,c) + \alpha L_{loc}(x,l,g)) \]
 
 \subsection{Network Architecture}
 
-\begin{center}
+\begin{figure}[H]
+\centering
 \includegraphics[scale = 0.5]{assets/ssdstruct1.png}
-\end{center}
+\caption{TODO: Saurabh}
+\end{figure}
 
 The first layer of the block is a 1×1 convolution. Its purpose is to expand the number of channels in the data before it goes into the depthwise convolution. Hence, this expansion layer always has more output channels than input channels. The second layer of the block is a depthwise convolution that filters the inputs. This is followed by a 1x1 pointwise convolutional layer which makes the number of channels smaller. This is why this layer is now known as the projection layer — it projects data with a high number of dimensions (channels) into a tensor with a much lower number of dimensions. For example, the depthwise layer may work on a tensor with 144 channels, which the projection layer will then shrink down to only 24 channels.
 
+\begin{figure}[h!]
 \includegraphics[width=\textwidth,keepaspectratio]{assets/ssdstruct2.png}
+\caption{TODO:Saurabh}
+\end{figure}
 
 Then there is a residual connection that works just like in ResNet and exists to help with the flow of gradients through the network. The residual connection is only used when the number of channels going into the block is the same as the number of channels coming out of it, which is not always the case as every few blocks the output channels are increased. As usual, each layer has batch normalization and the activation function is ReLU6. This is like the well-known ReLU but it prevents activations from becoming too big:
 
@@ -289,15 +345,28 @@ The full MobileNet V2 architecture, then, consists of 17 of these building block
 
 \section{Model deployment}
 
-TODO: change name?
-
 \subsection{Model training}
 
 Both models were trained on the KITTI dataset and an internal dataset given by CDAC Pune. The dataset was cleaned so as to remove all vehicles not annotated with the tag `Car'. However, it is possible to extend the same approach to multiple classes. Tiny YOLOv3 was trained on the official Darknet implementation, while SSD-Mobilenetv2 was trained with the Tensorflow Object Detection API.
 
 The hyperparameters used for training can be found below:
 
-TODO: Insert table
+\medskip
+
+\begin{center}
+\begin{tabular}{c|cc}
+     & Tiny YOLOv3 & SSD Mobilenetv2 \\
+    \hline
+    Number of Layers & 23 & 53 \\
+    Batch size & 16 & 16 \\
+    Learning Rate & 0.001 & 0.002 \\
+    Number of epochs & 13 & 12 \\
+    Optimizer & ADAM & RMS Prop \\
+    Number of classes & 1 & 1 \\
+    Training data size & 5390 & 7156 \\
+\end{tabular}
+\captionof{table}{Hyperparameters for model training}
+\end{center}
 
 \subsection{Model Optimization}
 
