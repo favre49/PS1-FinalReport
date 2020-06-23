@@ -220,7 +220,7 @@ The more two bounding boxes overlap, or in other words, the more alike they are,
 
 All points of a single colour are in one cluster, while the black dots signify their centres, which are chosen as anchor boxes.
 
-\subsection{The loss function}
+\subsection{The Loss Function}
 
 The YOLO loss function is a sum of three parts:
 
@@ -288,7 +288,7 @@ SSD only needs an input image and the corresponding ground truth boxes for each 
 
 SSD makes far more predictions than the number of objects present. So, there are many more negative matches than positive matches. This creates a class imbalance that hurts training. We are training the model to learn background space rather than detecting objects. The reason why you need to keep negative samples is because the network also needs to learn and be explicitly told what constitutes an incorrect detection. So, instead of using all the negatives, we sort those negatives by their calculated confidence loss. SSD picks the negatives with the top loss and makes sure the ratio between the picked negatives and positives is at most 3:1. This leads to faster and more stable training. This is known as hard negative mining.
 
-\subsection{The loss function}
+\subsection{The Loss Function}
 
 The model loss is a weighted sum between localization loss and confidence loss. Localization loss measures how far away the network’s predicted bounding boxes are from the ground-truth bounding boxes.
 
@@ -343,9 +343,9 @@ Then there is a residual connection that works just like in ResNet and exists to
 However, the output of the projection layer does not have an activation function applied to it. Since this layer produces low-dimensional data, using a non-linearity after this layer actually destroys useful information.
 The full MobileNet V2 architecture, then, consists of 17 of these building blocks in a row. This is followed by a regular 1×1 convolution, a global average pooling layer, and a classification layer. (Small detail: the very first block is slightly different, it uses a regular 3×3 convolution with 32 channels instead of the expansion layer.)
 
-\section{Model deployment}
+\section{Model Deployment}
 
-\subsection{Model training}
+\subsection{Model Training}
 
 Both models were trained on the KITTI dataset and an internal dataset given by CDAC Pune. The dataset was cleaned so as to remove all vehicles not annotated with the tag `Car'. However, it is possible to extend the same approach to multiple classes. Tiny YOLOv3 was trained on the official Darknet implementation, while SSD-Mobilenetv2 was trained with the Tensorflow Object Detection API.
 
@@ -401,6 +401,30 @@ TensorRT is an SDK developed by NVIDIA for high performance inference. Besides p
 We can also create a minor speedup by the use of multithreading.
 
 TODO: Talk to Saurabh about multithreading in Tensorflow. Darknet does it internally anyway
+
+\section{Results}
+
+\subsection{Evaluation Metrics}
+
+Object detection models are evaluated using the metric of Mean Average Precision (MAP). To understand this metric, we must first understand the following terms:
+
+\begin{enumerate}
+
+    \item True Positive: A classification is a true positive when the IOU of the predicted bounding box and the ground truth bounding box is greater than some threshold, usually 0.5
+
+    \item False Positive: A classification is a false positive if the IOU of the predicted bounding box and the ground truth is less than the threshold, or if it is a duplicate bounding box of another classification
+
+    \item False Negative: A classification is a false negative if there is no detection at all, or if the predicted bounding box has an IOU above the specified threshold, but has the wrong classification.
+
+    \item Precision: The ratio of the number of true positives to the total number of predicted positives is known as precision.
+        \[ \text{Precision} = \frac{TP}{TP+FP} \]
+
+    \item Recall: The ratio of the number of true positives to the total of ground truth positives is known as recall.
+        \[ \text{Recall} = \frac{TP}{TP+FN}  \]
+
+\end{enumerate}
+
+By varying the confidence threshold on our bounding boxes, we are able to vary the precision and recall creating a curve called the Precision-Recall Curve (PR Curve). Using this curve, we are able to calculate the Average Precision (AP) of a class at a certain IOU threshold. This is defined as the mean of precisions at 11 equally spaced recalls. The mean of average precisions of all classes at all specified IOU thresholds is called the Mean Average Precision.
 
 \end{document}
 
