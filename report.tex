@@ -400,7 +400,7 @@ TensorRT is an SDK developed by NVIDIA for high performance inference. Besides p
 
 \subsubsection{Multithreading}
 
-Both Tensorflow and Darknet speed up evaluation by using multiprocessing, which allows it to run on multiple CPU cores. We can get another small boost by using multi-threading. One thread (the producer) evaluates and image and produces bounding boxes, while a second thread (the consumer) takes these bounding boxes and uses OpenCV to draw it onto the video feed and write it to an output file (or video stream). It is important to note that the concurrency produced by multithreading is not ideal in Python, due to the Global Interpreter Lock.
+Both Tensorflow and Darknet speed up evaluation by using multiprocessing, which allows it to run on multiple CPU cores. We can get another small boost by using multi-threading. One thread (the producer) evaluates an image and produces bounding boxes, while a second thread (the consumer) takes these bounding boxes and uses OpenCV to draw it onto the video feed and write it to an output file (or video stream). It is important to note that the concurrency produced by multithreading is not ideal in Python, due to the Global Interpreter Lock.
 
 \subsection{Model Deployment}
 
@@ -607,11 +607,13 @@ The model was also benchmarked at different levels of optimization. The results 
 
 \noindent \textbf{Sigmoid function} The sigmoid function is a class of functions that has a range from [0,1] and has a characteristic S-shaped curve.
 
-\noindent \textbf{KL-divergence}
+\noindent \textbf{KL-divergence} KL-divergence defines the difference between two probability distributions defined on the same probability space
 
-\noindent \textbf{HTTP}
+\noindent \textbf{Global Interpreter Lock} This is a mechanism used by interpreters to synchronize the execution of threads, to avoid sharing code that is not thread-safe.
 
-\noindent \textbf{REST}
+\noindent \textbf{HTTP} HTTP, which stands for HyperText Transfer Protocol, is a protocol for transmitting data on the internet.
+
+\noindent \textbf{REST} REST (Representational State Transfer) is a software architectural style that defines a set of constraints to be used for creating services on the internet.
 
 \pagebreak
 
