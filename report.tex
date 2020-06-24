@@ -5,7 +5,7 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{caption}
-\usepackage{hyperref}
+\usepackage[hidelinks]{hyperref}
 
 \renewcommand{\baselinestretch}{1.5}
 
@@ -389,7 +389,7 @@ $t$ is the INT8 tensor,
 
 Sometimes, a bias term is also added, but it is normally not necessary.
 
-To decide the scaling factor, we choose a threshold value $T$. All values outside the range $[-T,T]$ are given the extreme values of -127 or 127, and the values in between are linearly scaled to values between -127 and 127. Now, how do we decide the threshold $T$? Essentialy, we are looking for a value of T that would minimize the difference between two distributions - the distribution of the FP32 tensors and the distribution of the INT8 tensors. The difference between them can be quantified using the Kullback-Leibler divergence. So, to choose the threshold $T$, we choose the value that minimizes the KL-divergence. This can be done by a simple iterative search for the right threshold value. 
+To decide the scaling factor, we choose a threshold value $T$. All values outside the range $[-T,T]$ are given the extreme values of -127 or 127, and the values in between are linearly scaled to values between -127 and 127. Now, how do we decide the threshold $T$? Essentially, we are looking for a value of T that would minimize the difference between two distributions - the distribution of the FP32 tensors and the distribution of the INT8 tensors. The difference between them can be quantified using the Kullback-Leibler divergence. So, to choose the threshold $T$, we choose the value that minimizes the KL-divergence. This can be done by a simple iterative search for the right threshold value. 
 
 Another important part of choosing the threshold value is the calibration dataset. The calibration dataset is ideally representative of the data that we expect to process, and it usually a subset of the validation dataset. It is used to generate histograms of activations from FP32 inference, from which multiple 8 bit representations are produced. The one with the least KL-divergence is chosen. This process is known as calibration.
 
@@ -399,7 +399,11 @@ TensorRT is an SDK developed by NVIDIA for high performance inference. Besides p
 
 \subsubsection{Multithreading}
 
+Both Tensorflow and Darknet speed up evaluation by using multiprocessing, which allows it to run on multiple CPU cores. We can get another small boost by using multi-threading. One thread (the producer) evaluates and image and produces bounding boxes, while a second thread (the consumer) takes these bounding boxes and uses OpenCV to draw it onto the video feed and write it to an output file (or video stream). It is important to note that the concurrency produced by multithreading is not ideal in Python, due to the Global Interpreter Lock.
 
+\subsection{Model Deployment}
+
+Once the models have been optimized, we need to deploy them for use. To do this, we used Flask - a Python web framework which can be used to create REST APIs. By wrapping our code in a Flask framework, we can create a web server, and send HTTP requests to process images or videos, and send the processed image or video with the bounding boxes back to the user. This makes it easier to use remotely, and more extensible - it is easy to interchange the currently used model with a new, more powerful model.
 
 \section{Results}
 
@@ -439,6 +443,47 @@ By varying the confidence threshold on our bounding boxes, we are able to vary t
 % Appendix A
 
 \section*{Appendix A}
+\label{sec:appa}
+\addcontentsline{toc}{section}{\nameref{sec:appa}}
+
+\begin{tabular}{|c | c|}
+    \hline
+    GPU & NVIDIA Maxwell architecture with 128 NVIDIA CUDA cores \\
+    \hline
+    CPU & Quad-core ARM Cortex A57 MPCore processor \\
+    \hline
+    Memory & 4GB 64-bit LPDDR4 \\
+           & 1600 MHz-25.6GB/s \\
+    \hline
+    Storage & 16 GB eMMC 5.1 Flash \\
+    \hline
+    Video Encode & 250 MP/sec \\
+                 & 1x 4K @ 30 (HEVC) \\
+                 & 2x 1080p @ 60 (HEVC) \\
+                 & 4x 1080p @ 30 (HEVC) \\
+    \hline
+    Video Decode & 500 MP/sec \\
+                 & 1x 4K @ 60 (HEVC) \\
+                 & 2x 4K @ 30 (HEVC) \\
+                 & 4x 1080p @ 60 (HEVC) \\
+                 & 8x 1080p @ 30 (HEVC) \\
+    \hline
+    Camera & 12 lanes (3x4 or 4x2) MIPI CSI-2 DPHY 1.1 (18 Gbps) \\
+    \hline
+    Connectivity & WiFi requires external chip \\
+                 & 10/100/1000 BASE-T Ethernet \\
+    \hline
+    Display & HDMI 2.0 or DP1.2 , eDP 1.4 , DSI (1x2) 2 simultaneous \\
+    \hline
+    UPHY & 1 x1/2/4 PCI-e, 1x USB 3.0, 3x USB 2,0 \\
+    \hline
+    I/O & 1x SDIO / 2x SPI / 4x 12C / 2x I2S / GPIOs \\
+    \hline
+    Size & 69.6 mm x 45 mm \\
+    \hline
+    Mechanical & 260-pin edge connector \\
+    \hline
+\end{tabular}
 
 \pagebreak
 
@@ -447,6 +492,8 @@ By varying the confidence threshold on our bounding boxes, we are able to vary t
 % References
 
 \section*{References}
+\label{sec:refer}
+\addcontentsline{toc}{section}{\nameref{sec:refer}}
 
 
 \pagebreak
@@ -456,6 +503,8 @@ By varying the confidence threshold on our bounding boxes, we are able to vary t
 % Glossary
 
 \section*{Glossary}
+\label{sec:glossary}
+\addcontentsline{toc}{section}{\nameref{sec:glossary}}
 
 \textbf{Bounding Box} A bounding box is a box that defines the dimensions of a box that surrounds the object being detected.
 
@@ -466,6 +515,12 @@ By varying the confidence threshold on our bounding boxes, we are able to vary t
 \noindent \textbf{Loss Function} The loss function is a function that maps variables or values to a single real number that represents the “cost” associated with that set of values. In neural networks, it is an indicator of how “good” a neural network is.
 
 \noindent \textbf{Sigmoid function} The sigmoid function is a class of functions that has a range from [0,1] and has a characteristic S-shaped curve.
+
+\noindent \textbf{KL-divergence}
+
+\noindent \textbf{HTTP}
+
+\noindent \textbf{REST}
 
 \pagebreak
 
