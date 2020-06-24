@@ -4,7 +4,7 @@
 \usepackage{graphicx}
 \usepackage{float}
 \usepackage{amsmath}
-\usepackage{caption}
+\usepackage[justification=centering]{caption}
 \usepackage[hidelinks]{hyperref}
 
 \renewcommand{\baselinestretch}{1.5}
@@ -430,6 +430,70 @@ Object detection models are evaluated using the metric of Mean Average Precision
 By varying the confidence threshold on our bounding boxes, we are able to vary the precision and recall creating a curve called the Precision-Recall Curve (PR Curve). Using this curve, we are able to calculate the Average Precision (AP) of a class at a certain IOU threshold. This is defined as the mean of precisions at 11 equally spaced recalls. The mean of average precisions of all classes at all specified IOU thresholds is called the Mean Average Precision.
 
 \subsection{Tiny YOLOv3}
+
+Some sample results can be seen in Fig X (TODO add fig).
+
+The model achieved an mAP of 86 on an unseen subset of the internal dataset given to us by CDAC, and an mAP of 81 on the KITTI dataset. The precision recall curves can be seen in Figs. wtvr
+
+\begin{figure}
+    \centering
+
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{assets/YOLO_MAP_CDAC.png}
+        \caption{Precision Recall curve for CDAC data}
+    \end{minipage} \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{assets/YOLO_MAP_KITTI.png}
+        \caption{Precision Recall curve for KITTI data}
+    \end{minipage}
+
+\end{figure}
+
+From the PR curves, we can see that for most IOU thresholds up to 0.9, the curve is almost identical. This means that the model is performing well at localization, since the bounding boxes have a high IOU with the ground truth. However, the steep dropoff indicates that the model does not give very high confidence values to each bounding box. From analysis it seems the model gives at most 0.55 confidence to a single bounding box, which is less than ideal. 
+
+
+\subsection{SSD Mobilenet}
+
+Some sample results can be seen in Fig X (TODO add fig).
+
+The model achieved an mAP of 95.8 on an unseen subset of the internal dataset given to us by CDAC, and an mAP of 68.31 on the KITTI dataset. The precision recall curves can be seen in Figs. 5 and 6.
+
+\begin{figure}
+    \centering
+
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{assets/SSD_MAP_CDAC.png}
+        \caption{Precision Recall curve for CDAC data}
+    \end{minipage} \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{assets/SSD_MAP_KITTI.png}
+        \caption{Precision Recall curve for KITTI data}
+    \end{minipage}
+
+\end{figure}
+
+
+From the PR curves, we can see that the curves for most IOU thresholds up to 0.9 are exactly identical in case of internal data and almost identical for KITTI data. This model is performing exceptionally well on the internal data but is not doing so well on the KITTI data, particularly due to the presence of far away cars. 
+
+The model was also benchmarked at different levels of optimization. The results found are tabulated below:
+
+\begin{center}
+\begin{tabular}{|c|c|}
+    \hline
+    Unoptimized FP32 model & 3 FPS \\
+    \hline
+    FP16 TensorRT model & 20 FPS \\
+    \hline
+    Asynchronous FP16 model & 27 FPS \\
+    \hline
+\end{tabular}
+\captionof{table}{Inference speeds on video at different stages of optimization}
+\end{center}
+
 
 \section{Future work}
 
