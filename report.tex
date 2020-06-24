@@ -6,6 +6,7 @@
 \usepackage{amsmath}
 \usepackage[justification=centering]{caption}
 \usepackage[hidelinks]{hyperref}
+\usepackage{subcaption}
 
 \renewcommand{\baselinestretch}{1.5}
 
@@ -431,11 +432,24 @@ By varying the confidence threshold on our bounding boxes, we are able to vary t
 
 \subsection{Tiny YOLOv3}
 
-Some sample results can be seen in Fig X (TODO add fig).
+Some sample results can be seen in Fig. 5.
 
-The model achieved an mAP of 86 on an unseen subset of the internal dataset given to us by CDAC, and an mAP of 81 on the KITTI dataset. The precision recall curves can be seen in Figs. wtvr
+\begin{figure}[H]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width = 0.9\linewidth,height=5cm]{assets/yolo_fig1.jpg}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=0.9\linewidth,height=5cm]{assets/yolo_fig2.jpg}
+        \caption{}
+    \end{subfigure}
+    \caption{Sample results from SSD-Mobilenetv2}
+\end{figure}
 
-\begin{figure}
+The model achieved an mAP of 86 on an unseen subset of the internal dataset given to us by CDAC, and an mAP of 81 on the KITTI dataset. The precision recall curves can be seen in Figs. 6 and 7.
+
+\begin{figure}[H]
     \centering
 
     \begin{minipage}{0.45\textwidth}
@@ -456,9 +470,22 @@ From the PR curves, we can see that for most IOU thresholds up to 0.9, the curve
 
 \subsection{SSD Mobilenet}
 
-Some sample results can be seen in Fig X (TODO add fig).
+Some sample results can be seen in Fig 8.
 
-The model achieved an mAP of 95.8 on an unseen subset of the internal dataset given to us by CDAC, and an mAP of 68.31 on the KITTI dataset. The precision recall curves can be seen in Figs. 5 and 6.
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width = 0.9\linewidth,height=5cm]{assets/SSD_fig1.png}
+        \caption{}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \includegraphics[width=0.9\linewidth,height=5cm]{assets/SSD_fig2.png}
+        \caption{}
+    \end{subfigure}
+    \caption{Sample results from SSD-Mobilenetv2}
+\end{figure}
+
+The model achieved an mAP of 95.8 on an unseen subset of the internal dataset given to us by CDAC, and an mAP of 68.31 on the KITTI dataset. The precision recall curves can be seen in Figs. 9 and 10.
 
 \begin{figure}
     \centering
