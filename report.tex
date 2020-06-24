@@ -524,7 +524,11 @@ The model was also benchmarked at different levels of optimization. The results 
 
 \section{Future work}
 
+While we have completed our project, much more can be done using our work as the basis. Due to time constraints, we were unable to test SSD-Mobilenetv2 with INT8 quantization. This could definitely markedly increase performance, but it remains to be seen whether the associated degradation in accuracy is worth it.
 
+We are also yet to find a suitable Python implementation of Tiny YOLOv3. We have tested multiple Tensorflow and TensorRT based implementations, but are yet to find one that works. Until one is found, it will not be easy to use with the rest of the pipeline, since Darknet is written in C. Much more testing and debugging is required before this is possible.
+
+Finally, since we did not have a camera to test with, our Flask framework has no support for streaming live camera feed. However, this should be easy to extend, since we already have support for this in our codebase.
 
 
 \pagebreak
