@@ -5,6 +5,7 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{caption}
+\usepackage{hyperref}
 
 \renewcommand{\baselinestretch}{1.5}
 
@@ -398,9 +399,7 @@ TensorRT is an SDK developed by NVIDIA for high performance inference. Besides p
 
 \subsubsection{Multithreading}
 
-We can also create a minor speedup by the use of multithreading.
 
-TODO: Talk to Saurabh about multithreading in Tensorflow. Darknet does it internally anyway
 
 \section{Results}
 
@@ -426,6 +425,13 @@ Object detection models are evaluated using the metric of Mean Average Precision
 
 By varying the confidence threshold on our bounding boxes, we are able to vary the precision and recall creating a curve called the Precision-Recall Curve (PR Curve). Using this curve, we are able to calculate the Average Precision (AP) of a class at a certain IOU threshold. This is defined as the mean of precisions at 11 equally spaced recalls. The mean of average precisions of all classes at all specified IOU thresholds is called the Mean Average Precision.
 
+\subsection{Tiny YOLOv3}
+
+\section{Future work}
+
+
+
+
 \pagebreak
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -442,6 +448,7 @@ By varying the confidence threshold on our bounding boxes, we are able to vary t
 
 \section*{References}
 
+
 \pagebreak
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -449,6 +456,16 @@ By varying the confidence threshold on our bounding boxes, we are able to vary t
 % Glossary
 
 \section*{Glossary}
+
+\textbf{Bounding Box} A bounding box is a box that defines the dimensions of a box that surrounds the object being detected.
+
+\noindent \textbf{Feature Extraction} Feature extraction is the reduction of raw data into a set of smaller, more easily describable features.
+
+\noindent \textbf{K means Clustering} K-means clustering is a clustering algorithm that partitions observations into k clusters, where each observation belongs to the cluster with the nearest mean, which serves as the prototype of the cluster.
+
+\noindent \textbf{Loss Function} The loss function is a function that maps variables or values to a single real number that represents the “cost” associated with that set of values. In neural networks, it is an indicator of how “good” a neural network is.
+
+\noindent \textbf{Sigmoid function} The sigmoid function is a class of functions that has a range from [0,1] and has a characteristic S-shaped curve.
 
 \pagebreak
 
