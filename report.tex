@@ -522,10 +522,14 @@ The model was also benchmarked at different levels of optimization. The results 
 \captionof{table}{Inference speeds on video at different stages of optimization}
 \end{center}
 
+\section{Conclusions}
+
+From our initial research and testing, it seemed clear to us that Tiny YOLOv3 was the better choice - it gave us good accuracy and speed on local testing. However, we soon realized that many Python implementations for Tiny YOLOv3 were untested or buggy. This meant that we cannot optimize it with TensorRT, and cannot easily insert it into our Python pipeline. Moreover, from testing the Darknet implementation, it seem clear that SSD also has a clear speed advantage, making it our primary choice for our object detection pipeline.
+
 
 \section{Future work}
 
-While we have completed our project, much more can be done using our work as the basis. Due to time constraints, we were unable to test SSD-Mobilenetv2 with INT8 quantization. This could definitely markedly increase performance, but it remains to be seen whether the associated degradation in accuracy is worth it.
+While we have completed our project, much more can be done using our work as the basis. Due to time constraints, we were unable to test SSD-Mobilenetv2 with INT8 quantization. This would certainly markedly increase performance, but it remains to be seen whether the associated degradation in accuracy is worth it.
 
 We are also yet to find a suitable Python implementation of Tiny YOLOv3. We have tested multiple Tensorflow and TensorRT based implementations, but are yet to find one that works. Until one is found, it will not be easy to use with the rest of the pipeline, since Darknet is written in C. Much more testing and debugging is required before this is possible.
 
