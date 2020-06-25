@@ -270,9 +270,7 @@ $\lambda_{coord}$ increases the weight of the localization loss in the total los
 
 \subsection{Network Architecture}
 
-YOLOv3 uses a 53-layer Darknet-53 feature extractor, upon which another 53 layers are stacked for the purpose of detection, coming to a total of 106 layers. This is far too much for our embedded system use case. Instead, we use a smaller, lighter model, Tiny YOLOv3.  It uses only 23 layers, making it perfect for our case. The network architecture is as tabulated below:
-
-\includegraphics[width=\textwidth,keepaspectratio]{assets/darknettable.png}
+YOLOv3 uses a 53-layer Darknet-53 feature extractor, upon which another 53 layers are stacked for the purpose of detection, coming to a total of 106 layers. This is far too much for our embedded system use case. Instead, we use a smaller, lighter model, Tiny YOLOv3.  It uses only 23 layers, making it perfect for our case. The full network architecture for Tiny YOLOv3 can be found in Appendix B.
 
 \section{SSD - Single Shot Multibox Detector}
 
@@ -584,6 +582,20 @@ Finally, since we did not have a camera to test with, our Flask framework has no
     Mechanical & 260-pin edge connector \\
     \hline
 \end{tabular}
+
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Appendix B
+
+\section*{Appendix B}
+\label{sec:appb}
+\addcontentsline{toc}{section}{\nameref{sec:appb}}
+
+\medskip
+
+\includegraphics[width=\textwidth]{assets/darknettable.png}
 
 \pagebreak
 
