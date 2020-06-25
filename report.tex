@@ -466,7 +466,7 @@ The model achieved an mAP of 86 on an unseen subset of the internal dataset give
 \end{figure}
 
 From the PR curves, we can see that for most IOU thresholds up to 0.9, the curve is almost identical. This means that the model is performing well at localization, since the bounding boxes have a high IOU with the ground truth. However, the steep dropoff indicates that the model does not give very high confidence values to each bounding box. From analysis it seems the model gives at most 0.55 confidence to a single bounding box, which is less than ideal. 
-
+From testing on the hardware, we found that Tiny YOLOv3 was able to process video at around 6 FPS. These results are very disappointing, considering when ran on another machine (GeForce GTX 1050 and Intel i5 8th gen processor), it gave almost twice the speed of SSD Mobilenet at 63 FPS. We were also unable to find a suitable Tensorflow or TensorRT implementation, which could optimize our model and afford us better results. Much more testing and exploration of implementations is needed to realize the full capability of Tiny YOLOv3.
 
 \subsection{SSD Mobilenet}
 
