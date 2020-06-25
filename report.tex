@@ -400,7 +400,7 @@ TensorRT is an SDK developed by NVIDIA for high performance inference. Besides p
 
 \subsubsection{Multithreading}
 
-Both Tensorflow and Darknet speed up evaluation by using multiprocessing, which allows it to run on multiple CPU cores. We can get another small boost by using multi-threading. One thread (the producer) evaluates an image and produces bounding boxes, while a second thread (the consumer) takes these bounding boxes and uses OpenCV to draw it onto the video feed and write it to an output file (or video stream). It is important to note that the concurrency produced by multithreading is not ideal in Python, due to the Global Interpreter Lock.
+We can get another small boost by using multi-threading. One thread (the producer) evaluates an image and produces bounding boxes, while a second thread (the consumer) takes these bounding boxes and uses OpenCV to draw it onto the video feed and write it to an output file (or video stream). It is important to note that the concurrency produced by multithreading is not ideal in Python, due to the Global Interpreter Lock.
 
 \subsection{Model Deployment}
 
@@ -444,7 +444,7 @@ Some sample results can be seen in Fig. 5.
         \includegraphics[width=0.9\linewidth,height=5cm]{assets/yolo_fig2.jpg}
         \caption{}
     \end{subfigure}
-    \caption{Sample results from SSD-Mobilenetv2}
+    \caption{Sample results from Tiny YOLOv3}
 \end{figure}
 
 The model achieved an mAP of 86 on an unseen subset of the internal dataset given to us by CDAC, and an mAP of 81 on the KITTI dataset. The precision recall curves can be seen in Figs. 6 and 7.
@@ -466,6 +466,7 @@ The model achieved an mAP of 86 on an unseen subset of the internal dataset give
 \end{figure}
 
 From the PR curves, we can see that for most IOU thresholds up to 0.9, the curve is almost identical. This means that the model is performing well at localization, since the bounding boxes have a high IOU with the ground truth. However, the steep dropoff indicates that the model does not give very high confidence values to each bounding box. From analysis it seems the model gives at most 0.55 confidence to a single bounding box, which is less than ideal. 
+
 From testing on the hardware, we found that Tiny YOLOv3 was able to process video at around 6 FPS. These results are very disappointing, considering when ran on another machine (GeForce GTX 1050 and Intel i5 8th gen processor), it gave almost twice the speed of SSD Mobilenet at 63 FPS. We were also unable to find a suitable Tensorflow or TensorRT implementation, which could optimize our model and afford us better results. Much more testing and exploration of implementations is needed to realize the full capability of Tiny YOLOv3.
 
 \subsection{SSD Mobilenet}
@@ -613,8 +614,6 @@ Finally, since we did not have a camera to test with, our Flask framework has no
     \item High performance inference with TensorRT Integration. (n.d.). Retrieved June 24, 2020, from https://blog.tensorflow.org/2019/06/high-performance-inference-with-TensorRT.html
 
     \item Cherukuri, R. What Is int8 Quantization and Why Is It Popular for Deep Neural Networks? (n.d.). Retrieved June 24, 2020, from https://www.mathworks.com/company/newsletters/ \\ articles/what-is-int8-quantization-and-why-is-it-popular-for-deep-neural-networks.html
-
-
 \end{enumerate}
 
 \pagebreak
@@ -648,4 +647,3 @@ Finally, since we did not have a camera to test with, our Flask framework has no
 \pagebreak
 
 \end{document}
-
